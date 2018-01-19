@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+- 'static'
+services:
+- postgresql
+install:
+- yarn
+- yarn buildEnv
+- yarn setup:rest-server
+- yarn setup:socket-server
+- yarn setup:services/coderunner-service
+before_script: 
+- createuser root
+- createdb codesling
+- psql -c 'create database travis_ci;' -U postgres
+- yarn db:setup:rest-server
+script:
+- yarn start &
+- sleep 10
