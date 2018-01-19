@@ -1,13 +1,16 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/codesling-topScores');
+mongoose.connect('mongodb://localhost/codesling');
 
 var db = mongoose.connection;
 
-let topScoreSchema = new Schema({
-  _id: { type: Number, unique: true },
-  contents: { type: Object, required: true }, 
-  challengeId: {type: Number, require: true}
+let topScoreSchema = new mongoose.Schema({
+  challengeId: {type: Number, require: true},
+  contents: { type: Object, required: true },
+  email: { type: String, required: true },
+  time: { type: Number, required: true },
 });
 
-let topScores = mongoose.model('topScores', topScoreSchema);
+const topScores = mongoose.model('topScores', topScoreSchema);
+
+export default topScores;
