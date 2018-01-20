@@ -1,7 +1,12 @@
 import db from "../../config/database";
-import { addChallengeHelper, addTopScoreHelper } from "./challengeSQLHelpers";
+import {
+  addChallengeHelper,
+  addTopScoreHelper,
+  fetchTopScoreForChallenge,
+  replaceTopScoreForChallenge
+} from "./challengeSQLHelpers";
 import { success, error } from "../../lib/log";
-import topScores from '../../config/mongodb';
+import topScores from "../../config/mongodb";
 
 export const addChallengeQuery = async body => {
   try {
@@ -16,12 +21,35 @@ export const addChallengeQuery = async body => {
 
 export const addTopScoreQuery = async body => {
   try {
-    console.log('in addtopscorequery', body);
-    const topScore = addTopScoreHelper(body)
+    const topScore = addTopScoreHelper(body);
     const data = await topScore.save();
     success("addTopScoreQuery - successfully added topScore ", data);
     return data;
-  } catch ( err ) {
-    error('addTopScoreQuery - error=', err)
+  } catch (err) {
+    error("addTopScoreQuery - error=", err);
   }
 };
+
+export const fetchTopScoreForChallengeQuery = async body => {
+  try {
+    const currentTopScore = fetchTopScoreForChallenge(body);
+    console.log('currentTopScore', currentTopScore)
+    const data = await currentTopScore.exec();
+    success("fetchTopScoreForChallengeQuery - successfully fetched current topScore ", data);
+    return data;
+  } catch (err) {
+    error("fetchTopScoreForChallengeQuery - error=", err);
+  }
+}
+
+export const replaceTopScoreForChallengeQuery = async body => {
+  try {
+    console.log(newTopScore)
+    const newTopScore = replaceTopScoreForChallenge(body);
+    const data = await newTopScore.exec();
+    success("replaceTopScoreForChallengeQuery - successfully fetched new topScore ", data);
+    return data;
+  } catch (err) {
+    error("replaceTopScoreForChallengeQuery - error=", err);
+  }
+}
