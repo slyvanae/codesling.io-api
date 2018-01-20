@@ -35,10 +35,10 @@ export const serverLeave = ({ io, room }) => {
     .emit('server.leave');
 };
 
-export const serverRun = ({ io, room }, { stdout, email }) => {
+export const serverRun = ({ io, room }, { stdout, email, passed }) => {
   io
     .in(room.get('id'))
-    .emit('server.run', { stdout, email });
+    .emit('server.run', { stdout, email, passed });
 };
 
 export const serverMessage = ({ io, room }, message) => {
