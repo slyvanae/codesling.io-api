@@ -53,7 +53,7 @@ export const replaceTopScoreForChallengeController = async (req, res) => {
       "replaceTopScoreForChallenge - successfully replaced topScoreForChallenge",
       newTopScore
     );
-    // return res.status(201).send(newTopScore);
+    return res.status(201).send(newTopScore);
   } catch (err) {
     error('replaceTopScoreForChallenge - error=", err')
   }
