@@ -25,6 +25,7 @@ const clientReady = ({ io, client, room }, payload) => {
   serverInitialState({ io, client, room }, payload);
 };
 
+
 const clientUpdate = ({ io, client, room }, payload) => {
   const { text, email } = payload;
   log('client update heard. payload.text = ', payload);
@@ -38,32 +39,52 @@ const clientDisconnect = ({ io, room }) => {
   serverLeave({ io, room });
 };
 
+const adjustTypes = ( input, type ) => {
+  let result; 
+  if (type === 'string') {
+    result = ('\"' + input + '\"'); 
+  } else if (type === 'integer') {
+    result = JSON.parse(input); 
+  } else if (type === 'boolean') {
+    result = JSON.parse(input); 
+  } else if (type === 'array') {
+    result = JSON.parse(input);
+  } else {
+    result = input;
+  }
+  return result;
+}
+
 const clientRun = async ({ io, room }, payload) => {
   log('running code from client. room.get("text") = ', room.get('text'));
-  const { text, email } = payload;
-  let { input, output } = payload; 
+  const { text, email, outputValue, inputValue } = payload;
+  let { input, output } = payload;
   const url = process.env.CODERUNNER_SERVICE_URL;
 
   try {
     const { data } = await axios.post(`${url}/submit-code`, { code: text });
-    const stdout = data;
-    // console.log('input', input, typeof input); 
-    // console.log('output', output, typeof JSON.parse(output)); 
-    // if (typeof input === 'string') {
-    //   input = '\'' + input + '\''; 
-    // }
-    // // if (typeof output === 'string') {
-    // //   output = '\"' + output + '\"'; 
-    // // }
-    // let funcName = text.split(' ')[1].split('(')[0];  
-    // let funcInvocation = funcName + '(' + input + ')'; 
-    // let result = eval(text + funcInvocation); 
-    // let passed = result === JSON.parse(output); 
-    // console.log('eval', typeof result); 
-    // console.log('passed', passed); 
-    //serverRun({ io, room }, { stdout, email, passed });
-    serverRun({ io, room }, { stdout, email });
+    let stdout = data;
 
+    input = adjustTypes(input, inputValue);
+    output = adjustTypes(output, outputValue);
+
+    const funcName = text.split(' ')[1].split('(')[0];
+    if (inputValue === 'array') {
+      input = JSON.stringify(input)
+    }
+    const funcInvocation = funcName + '(' + input + ')';
+    const result = eval(text + funcInvocation);
+    if (typeof output === 'string') {
+      output = JSON.parse(output);
+    }
+    const passed = JSON.stringify(result) === JSON.stringify(output);
+    let score = '\n' + email; 
+    if (passed) {
+      score = score + ' WINS!'
+    } else {
+      score = score + ', incorrect submission'
+    }
+    serverRun({ io, room }, { stdout, email, score, passed });
   } catch (e) {
     log('error posting to coderunner service from socket server. e = ', e);
   }
