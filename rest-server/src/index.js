@@ -1,8 +1,9 @@
 import http from 'http';
-
+import mongoose from 'mongoose';
 import App from './config/express';
 import { success } from './lib/log';
 import './config/database';
+
 // import './config/database/setup';
 
 const app = App.express;
